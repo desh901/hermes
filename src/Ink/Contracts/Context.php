@@ -1,44 +1,42 @@
 <?php
 
-namespace Hermes\Core\Contracts;
-
+namespace Hermes\Ink\Contracts;
 
 interface Context
 {
 
     /**
-     * Returns the base url that
+     * Returns the request base url
      *
-     * @return mixed
+     * @return string
      */
     public function getBaseUrl();
 
     /**
-     * Returns the request timeout in seconds
+     * Returns the request timeout
      *
-     * @return integer
+     * @return int
      */
     public function getTimeout();
 
     /**
-     * Returns the library mode (e.g. 'live' or 'sandbox')
+     * Returns the api environment
      *
      * @return string
      */
     public function getMode();
 
     /**
-     * Checks if the callback verification is enabled
+     * Whether the callbacks verification module should be enabled
      *
      * @return bool
      */
     public function verifyCallbacks();
 
     /**
-     * Return the credentials object
+     * Returns the credentials instance
      *
      * @return Credentials
      */
     public function getCredentials();
-
 }

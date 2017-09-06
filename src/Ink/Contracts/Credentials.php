@@ -1,6 +1,6 @@
 <?php
 
-namespace Hermes\Core\Contracts;
+namespace Hermes\Ink\Contracts;
 
 
 interface Credentials

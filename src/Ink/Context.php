@@ -1,23 +1,30 @@
 <?php
 
-namespace Hermes\Core;
+namespace Hermes\Ink;
 
-use Hermes\Core\Contracts\Credentials;
+use Hermes\Ink\Contracts\Context as ContextContract;
+use Hermes\Ink\Contracts\Credentials;
 use Illuminate\Contracts\Cache\Repository;
-use Hermes\Core\Contracts\Context as BaseContext;
 
-class Context implements BaseContext
+class Context implements ContextContract
 {
 
     /**
-     * API interaction mode
+     * Api request mode
      *
      * @var string
      */
     protected $mode;
 
     /**
-     * Request timeout expressed in seconds
+     * Api base url
+     *
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
+     * Request timeout interval in seconds
      *
      * @var int
      */
@@ -31,34 +38,27 @@ class Context implements BaseContext
     protected $cache;
 
     /**
-     * API Base url where to route requests
+     * Callback verification mode active
      *
-     * @var string
-     */
-    protected $baseUrl;
-
-    /**
-     * Checks if callback verification is active
-     *
-     * @var boolean
+     * @var bool
      */
     protected $verifyCallbacks;
 
     /**
-     * Credentials instance
+     * Credentials instance for the context
      *
      * @var Credentials
      */
     protected $credentials;
 
 
-    public function __construct($mode, $timeout, Repository $cache, $baseUrl, Credentials $credentials, $verifyCallbacks)
+    public function __construct($config, Repository $cache, Credentials $credentials, $verifyCallbacks = false)
     {
 
-        $this->mode = $mode;
-        $this->timeout = $timeout;
+        $this->mode = $config['mode'];
+        $this->timeout = $config[$this->mode]['timeout'];
+        $this->baseUrl = $config[$this->mode]['baseUrl'];
         $this->cache = $cache;
-        $this->baseUrl = $baseUrl;
         $this->credentials = $credentials;
         $this->verifyCallbacks = $verifyCallbacks;
 
@@ -67,7 +67,7 @@ class Context implements BaseContext
     /**
      * Returns the base url that
      *
-     * @return string
+     * @return mixed
      */
     public function getBaseUrl()
     {
@@ -113,5 +113,4 @@ class Context implements BaseContext
     {
         return $this->credentials;
     }
-
 }
