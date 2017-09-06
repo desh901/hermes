@@ -16,5 +16,6 @@ class Exception extends BaseException
     const UNKNOWN_PAYLOAD_TYPE_EXCEPTION = 6;
     const CONNECTION_EXCEPTION = 7;
     const JSON_ENCODING_EXCEPTION = 8;
+    const OBJECT_PARSING_EXCEPTION = 9;
 
 }

@@ -343,8 +343,14 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
      * Define the authentication function to apply to the request
      *
      * @param GuzzleRequest $request
+     * @return GuzzleRequest $request
      */
-    protected abstract function authenticate(GuzzleRequest $request);
+    protected function authenticate(GuzzleRequest $request)
+    {
+
+        return $this->context->getCredentials()->apply($request);
+
+    }
 
     /**
      * Parse the received response to matching objects

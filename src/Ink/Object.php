@@ -3,6 +3,7 @@
 namespace Hermes\Ink;
 
 use ArrayAccess;
+use Hermes\Core\Exceptions\ObjectParsingException;
 use JsonSerializable;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
@@ -72,7 +73,7 @@ abstract class Object implements ObjectContract, Arrayable, ArrayAccess, Jsonabl
             return collect($objects);
 
         }else {
-            throw new \Exception('Cannot parse object');
+            throw new ObjectParsingException($object, $attributes);
         }
     }
 
