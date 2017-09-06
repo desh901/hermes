@@ -3,6 +3,8 @@
 namespace Hermes\Core;
 
 
+use Hermes\Core\Contracts\Parsing\Factory;
+use Hermes\Core\Parsing\ParsingManager;
 use Illuminate\Container\Container;
 use Illuminate\Container\BoundMethod;
 use Hermes\Core\Contracts\Application as ApplicationContract;
@@ -56,6 +58,8 @@ class Application extends Container implements ApplicationContract
         }
 
         $this->registerBaseBindings();
+
+        $this->registerParsers();
 
         $this->registerCoreContainerAliases();
 
@@ -169,6 +173,26 @@ class Application extends Container implements ApplicationContract
         $this->instance('hermes', $this);
 
         $this->instance(Container::class, $this);
+    }
+
+    /**
+     * Register the basic request parsers.
+     *
+     * @return void
+     */
+    protected function registerParsers()
+    {
+
+        $this->singleton('parsing', function($app) {
+            return new ParsingManager($app);
+        });
+
+        $this->singleton('parsing.parser', function($app) {
+            return $app['parsing']->driver();
+        });
+
+        $this->alias('parsing', Factory::class);
+
     }
 
     /**

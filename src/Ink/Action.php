@@ -2,10 +2,7 @@
 
 namespace Hermes\Ink;
 
-use Hermes\Core\Exceptions\RequestParametersValidationError;
-use Hermes\Core\Exceptions\ResponseException;
-use Hermes\Core\Exceptions\ResponseParametersValidationError;
-use Hermes\Core\Exceptions\UrlParametersValidationError;
+use Mockery\Mock;
 use Hermes\Ink\Contracts\Context;
 use Hermes\Ink\Contracts\Response;
 use Hermes\Ink\Contracts\Parametrized;
@@ -14,11 +11,15 @@ use Hermes\Ink\Contracts\UrlParametrized;
 use Illuminate\Contracts\Cache\Repository;
 use Hermes\Ink\Traits\HasRequestParameters;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
+use Hermes\Core\Exceptions\ResponseException;
 use Hermes\Ink\Traits\HasQueryStringParameters;
 use Hermes\Ink\Contracts\QueryStringParametrized;
-use \Illuminate\Contracts\Validation\Factory as Validation;
 use Hermes\Ink\Contracts\Action as ActionContract;
-use Mockery\Mock;
+use Hermes\Core\Contracts\Parsing\Factory as Parsing;
+use Hermes\Core\Exceptions\UrlParametersValidationError;
+use \Illuminate\Contracts\Validation\Factory as Validation;
+use Hermes\Core\Exceptions\RequestParametersValidationError;
+use Hermes\Core\Exceptions\ResponseParametersValidationError;
 
 abstract class Action implements ActionContract, Parametrized, UrlParametrized, QueryStringParametrized
 {
@@ -56,11 +57,11 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
     protected $response;
 
     /**
-     * Supported payload parsers
+     * Parser factory
      *
-     * @var array
+     * @var Parsing
      */
-    protected $parsers = [];
+    protected $parser;
 
     /**
      * Response body validation rules
@@ -75,13 +76,15 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
      * @param Context $context
      * @param Repository $cache
      * @param Validation $validator
+     * @param Parsing $parser
      */
-    public function __construct(Context $context, Repository $cache, Validation $validator)
+    public function __construct(Context $context, Repository $cache, Validation $validator, Parsing $parser)
     {
 
         $this->context = $context;
         $this->cache = $cache;
         $this->validator = $validator;
+        $this->parser = $parser;
 
     }
 
@@ -289,17 +292,14 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
     /**
      * That function must return an array, to be validated against response_params_rules.
      *
-     * @param $mimetype
+     * @param $mimeType
      * @param $body
-     * @throws \Exception
-     * @return array
+     *
+     * @return mixed
      */
-    protected function parseRawBody($mimetype, $body)
+    protected function parseRawBody($mimeType, $body)
     {
-
-        //TODO: Implement parsers
-        return json_decode($body, true);
-
+        return $this->parser->parserFor($mimeType)->parse($body);
     }
 
     /*
