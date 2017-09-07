@@ -2,9 +2,9 @@
 
 namespace Hermes\Core;
 
-
 use Hermes\Core\Contracts\Parsing\Factory;
 use Hermes\Core\Parsing\ParsingManager;
+use Hermes\Core\Routing\ActionRouter;
 use Illuminate\Container\Container;
 use Illuminate\Container\BoundMethod;
 use Hermes\Core\Contracts\Application as ApplicationContract;
@@ -173,6 +173,10 @@ class Application extends Container implements ApplicationContract
         $this->instance('hermes', $this);
 
         $this->instance(Container::class, $this);
+
+        $this->singleton('router', function($app) {
+            return new ActionRouter($app);
+        });
     }
 
     /**
@@ -219,7 +223,8 @@ class Application extends Container implements ApplicationContract
     {
 
         $aliases = [
-            'hermes' => [Application::class, \Illuminate\Contracts\Container\Container::class, ApplicationContract::class]
+            'hermes' => [Application::class, \Illuminate\Contracts\Container\Container::class, ApplicationContract::class],
+            'router' => [ActionRouter::class]
         ];
 
         foreach ($aliases as $key => $nestedAliases) {

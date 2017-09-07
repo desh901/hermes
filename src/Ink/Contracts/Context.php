@@ -2,6 +2,8 @@
 
 namespace Hermes\Ink\Contracts;
 
+use Illuminate\Contracts\Cache\Repository;
+
 interface Context
 {
 
@@ -39,4 +41,11 @@ interface Context
      * @return Credentials
      */
     public function getCredentials();
+
+    /**
+     * Returns the cache instance
+     *
+     * @return Repository
+     */
+    public function getCache();
 }

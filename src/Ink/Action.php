@@ -2,13 +2,14 @@
 
 namespace Hermes\Ink;
 
+use Illuminate\Support\Arr;
 use Mockery\Mock;
+use Illuminate\Support\Str;
 use Hermes\Ink\Contracts\Context;
 use Hermes\Ink\Contracts\Response;
 use Hermes\Ink\Contracts\Parametrized;
 use Hermes\Ink\Traits\HasUrlParameters;
 use Hermes\Ink\Contracts\UrlParametrized;
-use Illuminate\Contracts\Cache\Repository;
 use Hermes\Ink\Traits\HasRequestParameters;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use Hermes\Core\Exceptions\ResponseException;
@@ -29,11 +30,25 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
         HasUrlParameters;
 
     /**
-     * Cache instance
+     * Action name
      *
-     * @var Repository
+     * @var $name
      */
-    protected $cache;
+    protected $name;
+
+    /**
+     * Action request method
+     *
+     * @var string
+     */
+    protected $method;
+
+    /**
+     * Action request endpoint
+     *
+     * @var string
+     */
+    protected $uri;
 
     /**
      * Validation factory instance
@@ -71,20 +86,27 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
     protected $responseParametersRules = [];
 
     /**
+     * Action base url
+     *
+     * @var string
+     */
+    protected $baseUrl;
+
+
+    /**
      * Action constructor
      *
      * @param Context $context
-     * @param Repository $cache
      * @param Validation $validator
      * @param Parsing $parser
      */
-    public function __construct(Context $context, Repository $cache, Validation $validator, Parsing $parser)
+    public function __construct(Context $context, Validation $validator, Parsing $parser)
     {
 
         $this->context = $context;
-        $this->cache = $cache;
         $this->validator = $validator;
         $this->parser = $parser;
+        $this->baseUrl = $this->context->getBaseUrl();
 
     }
 
@@ -224,6 +246,51 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
     }
 
     /**
+     * Returns the action base url
+     *
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+
+        return $this->baseUrl;
+
+    }
+
+    /**
+     * Set the action base url
+     *
+     * @param string $baseUrl
+     */
+    public function setBaseUrl($baseUrl)
+    {
+
+        $this->baseUrl = Str::endsWith($baseUrl, '/') ? $baseUrl : $baseUrl.'/';
+
+    }
+
+    /**
+     * Get the action name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set the action name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+
+    /**
      * Builds the request payload
      *
      * @return array
@@ -302,6 +369,19 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
         return $this->parser->parserFor($mimeType)->parse($body);
     }
 
+    /**
+     * Define the authentication function to apply to the request
+     *
+     * @param GuzzleRequest $request
+     * @return GuzzleRequest $request
+     */
+    protected function authenticate(GuzzleRequest $request)
+    {
+
+        return $this->context->getCredentials()->apply($request);
+
+    }
+
     /*
      * Abstract methods
      */
@@ -323,14 +403,76 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
      *
      * @return string
      */
-    protected abstract function getMethod();
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * Set the request method
+     *
+     * @param string $method
+     * @return self
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
+        return $this;
+    }
 
     /**
      * Get the base request endpoint
      *
      * @return string
      */
-    protected abstract function getEndpoint();
+    public function getEndpoint()
+    {
+        return $this->uri;
+    }
+
+    /**
+     * Set the base request endpoint
+     *
+     * @param string $uri
+     * @return self
+     */
+    public function setEndpoint($uri)
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+
+    /**
+     * Sets the action options like base url, timeout etc.
+     *
+     * @param array $options
+     */
+    public function setOptions(array $options)
+    {
+
+        $this->setBaseUrl(Arr::get($options, 'base_url', $this->getBaseUrl()));
+        $this->setName(Arr::get($options, 'name', $this->getName()));
+        $this->setName(Arr::get($options, 'as', $this->getName()));
+        $this->setMethod(Arr::get($options,'method', $this->getMethod()));
+
+    }
+
+    /**
+     * Get the action current options
+     *
+     * @return array $options
+     */
+    public function getOptions()
+    {
+
+        return [
+            'base_url' => $this->getBaseUrl(),
+            'name' => $this->getName(),
+            'as' => $this->getName(),
+            'method' => $this->getMethod()
+        ];
+
+    }
 
     /**
      * Headers to include into the request
@@ -338,19 +480,6 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
      * @return array
      */
     protected abstract function getHeaders();
-
-    /**
-     * Define the authentication function to apply to the request
-     *
-     * @param GuzzleRequest $request
-     * @return GuzzleRequest $request
-     */
-    protected function authenticate(GuzzleRequest $request)
-    {
-
-        return $this->context->getCredentials()->apply($request);
-
-    }
 
     /**
      * Parse the received response to matching objects

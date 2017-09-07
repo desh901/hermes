@@ -5,6 +5,7 @@ namespace Hermes\Ink;
 use Hermes\Ink\Contracts\Context as ContextContract;
 use Hermes\Ink\Contracts\Credentials;
 use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Support\Str;
 
 class Context implements ContextContract
 {
@@ -62,6 +63,8 @@ class Context implements ContextContract
         $this->credentials = $credentials;
         $this->verifyCallbacks = $verifyCallbacks;
 
+        if(!Str::endsWith($this->baseUrl, '/')) $this->baseUrl .= '/';
+
     }
 
     /**
@@ -112,5 +115,15 @@ class Context implements ContextContract
     public function getCredentials()
     {
         return $this->credentials;
+    }
+
+    /**
+     * Return the cache instance
+     *
+     * @return Repository
+     */
+    public function getCache()
+    {
+        return $this->cache;
     }
 }
