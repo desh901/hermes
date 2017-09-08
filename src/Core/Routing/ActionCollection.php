@@ -29,7 +29,7 @@ class ActionCollection implements Countable, IteratorAggregate
      *
      * @var array
      */
-    protected $nameList = [];
+    public $nameList = [];
 
     /**
      * A look-up table of actions by class.

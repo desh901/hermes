@@ -78,8 +78,6 @@ class ActionGroup
             $new['as'] = $old['as'].Arr::get($new, 'as', '');
         }
 
-        if(Arr::has($new, 'as')) $new['as'] = $new['as'].'.';
-
         return $new;
     }
 }

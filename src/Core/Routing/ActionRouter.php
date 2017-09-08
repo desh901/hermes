@@ -141,14 +141,7 @@ class ActionRouter
      */
     public function group(array $attributes, $actions)
     {
-        dump('BEFORE');
-        dump($attributes);
-        dump($actions);
         $this->updateGroupStack($attributes);
-
-        dump('AFTER');
-        dump($this->groupStack);
-        dump($actions);
 
         // Once we have updated the group stack, we'll load the provided actions and
         // merge in the group's attributes when the actions are created. After we

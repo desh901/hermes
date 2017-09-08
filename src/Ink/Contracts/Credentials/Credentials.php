@@ -1,6 +1,6 @@
 <?php
 
-namespace Hermes\Ink\Contracts;
+namespace Hermes\Ink\Contracts\Credentials;
 
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 

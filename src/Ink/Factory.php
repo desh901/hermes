@@ -2,11 +2,9 @@
 
 namespace Hermes\Ink;
 
-use Hermes\Core\Exceptions\EntityResolutionException;
-use Hermes\Ink\Contracts\Action;
-use Hermes\Ink\Contracts\Context;
+use Hermes\Core\Routing\ActionRouter;
 use Hermes\Ink\Contracts\Factory as FactoryContract;
-use Illuminate\Support\Arr;
+use Hermes\Core\Exceptions\EntityResolutionException;
 
 class Factory implements FactoryContract
 {
@@ -18,23 +16,24 @@ class Factory implements FactoryContract
     protected $actionsNamespace;
 
     /**
-     * Available actions
+     * Action router
      *
-     * @var array
+     * @var ActionRouter
      */
-    protected $actions = [];
+    protected $router;
 
     /**
      * Api context
      *
-     * @var Context
+     * @var \Hermes\Ink\Contracts\Context
      */
     protected $context;
 
-    public function __construct(Context $context)
+    public function __construct(Context $context, ActionRouter $router)
     {
 
         $this->context = $context;
+        $this->router = $router;
 
     }
 
@@ -50,7 +49,9 @@ class Factory implements FactoryContract
     public function fake($entity, $statusCode, array $responseBody)
     {
 
-        $actionClass = $this->getActionClass($entity);
+        $action = $this->router->getActions()->getByName($entity);
+
+        $actionClass = get_class($action);
         return $actionClass::fake($this->context, $statusCode, json_encode($responseBody));
 
     }
@@ -61,39 +62,18 @@ class Factory implements FactoryContract
      * @param string $entity
      *
      * @return Action
+     * @throws EntityResolutionException
      */
     public function make($entity)
     {
 
-        return hermes($this->getActionClass($entity));
+        $this->router->getActions()->refreshNameLookups();
 
-    }
-
-    /**
-     * Return the class name of the requested action
-     *
-     * @param $entity
-     * @return string
-     */
-    protected function getActionClass($entity)
-    {
-        $this->entityExists($entity);
-
-        return $this->actionsNamespace . '\\' . Arr::get($this->actions, $entity);
-    }
-
-    /**
-     * Checks whether the requested action is instantiable
-     *
-     * @param string $entity
-     *
-     * @throws EntityResolutionException
-     */
-    protected function entityExists($entity)
-    {
-
-        if(!Arr::has($this->actions, $entity))
+        if(!$this->router->getActions()->hasNamedAction($entity)) {
             throw new EntityResolutionException($entity);
+        }
+
+        return $this->router->getActions()->getByName($entity);
 
     }
 

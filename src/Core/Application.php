@@ -5,9 +5,17 @@ namespace Hermes\Core;
 use Hermes\Core\Contracts\Parsing\Factory;
 use Hermes\Core\Parsing\ParsingManager;
 use Hermes\Core\Routing\ActionRouter;
+use Hermes\Ink\Context;
+use Hermes\Ink\Credentials\CredentialsManager;
+use Illuminate\Cache\CacheManager;
+use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use Illuminate\Container\BoundMethod;
 use Hermes\Core\Contracts\Application as ApplicationContract;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Translation\FileLoader;
+use Illuminate\Translation\Translator;
 
 class Application extends Container implements ApplicationContract
 {
@@ -61,6 +69,12 @@ class Application extends Container implements ApplicationContract
 
         $this->registerParsers();
 
+        $this->registerCredentials();
+
+        $this->registerContext();
+
+        $this->registerActionFactory();
+
         $this->registerCoreContainerAliases();
 
     }
@@ -90,6 +104,7 @@ class Application extends Container implements ApplicationContract
         $this->instance('sdk.path', $this->path());
         $this->instance('sdk.path.base', $this->basePath());
         $this->instance('sdk.path.config', $this->configPath());
+        $this->instance('sdk.path.lang', $this->langPath());
         //$this->instance('sdk.path.bootstrap', $this->bootstrapPath());
     }
 
@@ -124,6 +139,17 @@ class Application extends Container implements ApplicationContract
     public function configPath($path = '')
     {
         return $this->basePath.DIRECTORY_SEPARATOR.'config'.($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+
+    /**
+     * Get the path to the lang directory.
+     *
+     * @param string $path Optionally, a path to append to the lang path
+     * @return string
+     */
+    public function langPath($path = '')
+    {
+        return $this->basePath.DIRECTORY_SEPARATOR.'lang'.($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 
 
@@ -174,10 +200,129 @@ class Application extends Container implements ApplicationContract
 
         $this->instance(Container::class, $this);
 
+        $this->registerConfigurationService();
+
+        $this->registerFilesystemService();
+
+        $this->registerTranslationService();
+
+        $this->registerValidationService();
+
+        $this->registerActionRouterService();
+
+        $this->registerCacheService();
+
+    }
+
+    /**
+     * Register the action router
+     *
+     * @return void
+     */
+    protected function registerActionRouterService()
+    {
+
         $this->singleton('router', function($app) {
             return new ActionRouter($app);
         });
+
+        $this->booted(function($app) {
+            $app['router']->getRoutes()->refreshNameLookups();
+        });
+
     }
+
+    /**
+     * Loads the configuration file
+     *
+     * @return void
+     */
+    protected function registerConfigurationService()
+    {
+
+        $items = [
+            'cache'  => require $this->configPath('cache.php'),
+            'hermes' => require $this->configPath('hermes.php')
+        ];
+
+        $this->instance('config', new Repository($items));
+
+    }
+
+    /**
+     * Loads the filesystem service
+     *
+     * @return void
+     */
+    protected function registerFilesystemService()
+    {
+
+        $this->singleton('files', function() {
+            return new Filesystem();
+        });
+
+    }
+
+    /**
+     * Register the action router
+     *
+     * @return void
+     */
+    protected function registerCacheService()
+    {
+
+        $this->singleton('cache', function($app) {
+            return new CacheManager($app);
+        });
+
+        $this->singleton('cache.store', function($app) {
+            return $app['cache']->driver();
+        });
+
+    }
+
+    /**
+     * Register the validation service
+     *
+     * @return void
+     */
+    protected function registerValidationService()
+    {
+
+        $this->singleton('validator', function($app) {
+            return new \Illuminate\Validation\Factory($app['translator'], $app);
+        });
+
+    }
+
+    /**
+     * Register the translation service
+     *
+     * @return void
+     */
+    protected function registerTranslationService()
+    {
+
+        $this->singleton('translation.loader', function($app) {
+
+            return new FileLoader($app['files'], $app['sdk.path.lang']);
+
+        });
+
+        $this->singleton('translator', function($app) {
+
+            $locale = $app['config']['hermes.locale'];
+            $fallback = $app['sdk.path.lang'];
+
+            $translator = new Translator($app['translation.loader'], $locale);
+
+            $translator->setFallback($fallback);
+
+            return $translator;
+        });
+
+    }
+
 
     /**
      * Register the basic request parsers.
@@ -196,6 +341,64 @@ class Application extends Container implements ApplicationContract
         });
 
         $this->alias('parsing', Factory::class);
+
+    }
+
+    /**
+     * Register the credentials drivers.
+     *
+     * @return void
+     */
+    protected function registerCredentials()
+    {
+
+        $this->singleton('credentials', function($app) {
+            return new CredentialsManager($app);
+        });
+
+        $this->singleton('credentials.driver', function($app) {
+            $mode = $app['config']['hermes.mode'];
+            $type = $app['config']['hermes'][$mode]['credentials']['type'];
+
+            return $app['credentials']->driver($type);
+        });
+
+    }
+
+    /**
+     * Register sdk context
+     *
+     * @return void
+     */
+    protected function registerContext()
+    {
+
+        $this->singleton('context', function($app) {
+
+            return new Context($app['config']['hermes'], $app['cache.store'], $app['credentials.driver']);
+
+        });
+
+        $this->alias('context', \Hermes\Ink\Contracts\Context::class);
+
+    }
+
+    /**
+     *
+     * Registers the actions factory
+     *
+     * @return void
+     */
+    protected function registerActionFactory()
+    {
+
+        $this->singleton('factory', function($app) {
+
+            return new \Hermes\Ink\Factory($app['context'], $app['router']);
+
+        });
+
+        $this->alias('factory', \Hermes\Core\Contracts\Factory::class);
 
     }
 
@@ -223,8 +426,12 @@ class Application extends Container implements ApplicationContract
     {
 
         $aliases = [
-            'hermes' => [Application::class, \Illuminate\Contracts\Container\Container::class, ApplicationContract::class],
-            'router' => [ActionRouter::class]
+            'hermes'            => [Application::class, \Illuminate\Contracts\Container\Container::class, ApplicationContract::class],
+            'router'            => [ActionRouter::class],
+            'cache'             => [CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
+            'cache.store'       => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
+            'config'            => [Repository::class, \Illuminate\Contracts\Config\Repository::class],
+            'validator'         => [\Illuminate\Validation\Factory::class, Validator::class, \Illuminate\Contracts\Validation\Factory::class]
         ];
 
         foreach ($aliases as $key => $nestedAliases) {

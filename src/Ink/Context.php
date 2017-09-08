@@ -3,7 +3,7 @@
 namespace Hermes\Ink;
 
 use Hermes\Ink\Contracts\Context as ContextContract;
-use Hermes\Ink\Contracts\Credentials;
+use Hermes\Ink\Contracts\Credentials\Credentials;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Str;
 
@@ -57,8 +57,11 @@ class Context implements ContextContract
     {
 
         $this->mode = $config['mode'];
-        $this->timeout = $config[$this->mode]['timeout'];
-        $this->baseUrl = $config[$this->mode]['baseUrl'];
+
+        $settings = $config[$this->mode];
+
+        $this->timeout = $settings['timeout'];
+        $this->baseUrl = $settings['base_url'];
         $this->cache = $cache;
         $this->credentials = $credentials;
         $this->verifyCallbacks = $verifyCallbacks;

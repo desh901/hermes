@@ -92,6 +92,14 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
      */
     protected $baseUrl;
 
+    /**
+     * Action's request timeout
+     *
+     * @var int
+     */
+    protected $timeout;
+
+
 
     /**
      * Action constructor
@@ -107,6 +115,7 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
         $this->validator = $validator;
         $this->parser = $parser;
         $this->baseUrl = $this->context->getBaseUrl();
+        $this->timeout = $this->context->getTimeout();
 
     }
 
@@ -166,8 +175,8 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
     protected function makeRequest()
     {
         return (new Request(
-            $this->context->getBaseUrl(),
-            $this->context->getTimeout(),
+            $this->getBaseUrl(),
+            $this->getTimeout(),
             $this->getPayloadType(),
             $this->getMethod(),
             $this->buildURI(),
@@ -287,6 +296,19 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * Add or change the action name.
+     *
+     * @param  string  $name
+     * @return $this
+     */
+    public function name($name)
+    {
+        $this->name = isset($this->name) ? $this->name.'.'.$name : $name;
+
+        return $this;
     }
 
 
@@ -443,17 +465,43 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
     }
 
     /**
+     * Get the base request timeout in seconds
+     *
+     * @return int
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * Set the base request timeout in seconds
+     *
+     * @param int $timeout
+     * @return self
+     */
+    public function setTimeout($timeout)
+    {
+        $this->timeout = $timeout;
+
+        return $this;
+    }
+
+    /**
      * Sets the action options like base url, timeout etc.
      *
      * @param array $options
+     * @return self
      */
     public function setOptions(array $options)
     {
 
         $this->setBaseUrl(Arr::get($options, 'base_url', $this->getBaseUrl()));
-        $this->setName(Arr::get($options, 'name', $this->getName()));
         $this->setName(Arr::get($options, 'as', $this->getName()));
         $this->setMethod(Arr::get($options,'method', $this->getMethod()));
+        $this->setTimeout(Arr::get($options, 'timeout', $this->getTimeout()));
+
+        return $this;
 
     }
 

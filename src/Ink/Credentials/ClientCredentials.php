@@ -2,7 +2,7 @@
 
 namespace Hermes\Ink\Credentials;
 
-use Hermes\Ink\Contracts\Credentials;
+use Hermes\Ink\Contracts\Credentials\Credentials;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 
 class ClientCredentials implements Credentials
