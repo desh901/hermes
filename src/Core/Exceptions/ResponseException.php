@@ -2,8 +2,6 @@
 
 namespace Hermes\Core\Exceptions;
 
-use Throwable;
-
 class ResponseException extends Exception
 {
 
@@ -11,7 +9,7 @@ class ResponseException extends Exception
     protected $statusCode;
     protected $response;
 
-    public function __construct($response = null, $statusCode = 500, Throwable $previous = null)
+    public function __construct($response = null, $statusCode = 500, $previous = null)
     {
         $this->response = $response;
         $this->statusCode = $statusCode;

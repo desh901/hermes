@@ -12,11 +12,10 @@ interface Object
      * Create an object or a collection of objects from an attributes array
      *
      * @param array $attributes
-     * @param string $itemKeyName
-     * @param string $collectionKeyName
+     * @param string $keyName
      * @return Object|Collection
      */
-    public static function create(array $attributes, $itemKeyName, $collectionKeyName);
+    public static function create(array $attributes, $keyName);
 
     /**
      * Convert object to array

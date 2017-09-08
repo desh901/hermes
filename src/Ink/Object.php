@@ -31,28 +31,28 @@ abstract class Object implements ObjectContract, Arrayable, ArrayAccess, Jsonabl
      *
      * @var string
      */
-    protected $itemKeyName;
-
-    /**
-     * Base collection name where to retrieve the object collection
-     *
-     * @param array $attributes
-     */
-    protected $collectionKeyName;
+    protected $keyName;
 
 
-    public function __construct($itemKeyName = null, $collectionKeyName = null)
+    public function __construct($keyName)
     {
 
-        $this->itemKeyName = $itemKeyName ?: $this->itemKeyName;
-        $this->collectionKeyName = $collectionKeyName ?: $this->collectionKeyName;
+        $this->keyName = $keyName ?: $this->keyName;
 
     }
 
-    public static function create(array $attributes = [], $itemKeyName = null, $collectionKeyName)
+    /**
+     * Create an object or a collection of objects from an attributes array
+     *
+     * @param array $attributes
+     * @param string $keyName
+     * @return \Hermes\Ink\Object|Collection
+     * @throws ObjectParsingException
+     */
+    public static function create(array $attributes = [], $keyName = null)
     {
 
-        $object = new static($itemKeyName, $collectionKeyName);
+        $object = new static($keyName);
 
         if($object->isSingleObject($attributes)) {
 
@@ -65,9 +65,9 @@ abstract class Object implements ObjectContract, Arrayable, ArrayAccess, Jsonabl
         }else if($object->isMultipleObjects($attributes))
         {
 
-            $collection = $object->getObjectCollection($attributes);
+            $collection = $object->getObject($attributes);
             $objects = array_map(function($attributes) use($object){
-                return self::create($attributes, $object->itemKeyName, $object->collectionKeyName);
+                return self::create($attributes, $object->keyName);
             }, $collection);
 
             return collect($objects);
@@ -99,21 +99,8 @@ abstract class Object implements ObjectContract, Arrayable, ArrayAccess, Jsonabl
     protected function isMultipleObjects(array $attributes)
     {
         return !Arr::isAssoc(
-            $this->getObjectCollection($attributes)
+            $this->getObject($attributes)
         );
-    }
-
-    /**
-     * Returns the collection of objects in the attributes array
-     *
-     * @param array $attributes
-     * @return array|mixed
-     */
-    protected function getObjectCollection(array $attributes)
-    {
-        return $this->collectionKeyName
-            ? Arr::get($attributes, $this->collectionKeyName, $attributes)
-            : $attributes;
     }
 
     /**
@@ -124,8 +111,8 @@ abstract class Object implements ObjectContract, Arrayable, ArrayAccess, Jsonabl
      */
     protected function getObject(array $attributes)
     {
-        return $this->itemKeyName
-            ? Arr::get($attributes, $this->itemKeyName, $attributes)
+        return $this->keyName
+            ? Arr::get($attributes, $this->keyName, $attributes)
             : $attributes;
     }
 
@@ -160,9 +147,9 @@ abstract class Object implements ObjectContract, Arrayable, ArrayAccess, Jsonabl
                     );
                 }
 
-            }else{
-                $this->setAttribute($attribute, $value);
             }
+
+            $this->setAttribute($attribute, $value);
 
         }
 
@@ -183,12 +170,12 @@ abstract class Object implements ObjectContract, Arrayable, ArrayAccess, Jsonabl
 
         if($relation instanceof HasOne)
         {
-            return $relationClass::create($value, '', '');
+            return $relationClass::create($value, '');
 
         }else {
 
             $objects = array_map(function($obj) use($relationClass){
-                return $relationClass::create($obj, '', '');
+                return $relationClass::create($obj, '');
             }, $value);
 
             return collect($objects);

@@ -2,11 +2,12 @@
 
 namespace Hermes\Ink;
 
-use Illuminate\Support\Arr;
 use Mockery\Mock;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Hermes\Ink\Contracts\Context;
 use Hermes\Ink\Contracts\Response;
+use Hermes\Core\Exceptions\Exception;
 use Hermes\Ink\Contracts\Parametrized;
 use Hermes\Ink\Traits\HasUrlParameters;
 use Hermes\Ink\Contracts\UrlParametrized;
@@ -98,6 +99,13 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
      * @var int
      */
     protected $timeout;
+
+    /**
+     * Parse with specified objects
+     *
+     * @var array
+     */
+    protected $parseWith = [];
 
 
 
@@ -230,7 +238,7 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
     {
 
         $validator = $this->validator->make($responseBody, $this->responseParametersRules);
-        if($this->validator->fails()){
+        if($validator->fails()){
             throw new ResponseParametersValidationError($validator->getMessageBag());
         }
 
@@ -353,7 +361,6 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
 
         $this->validateResponse($parsedResponse);
 
-        // TODO: see if object generation can be abstracted
         return $this->parseResponse($parsedResponse);
     }
 
@@ -418,7 +425,7 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
      *
      * @return string
      */
-    protected abstract function getPayloadType();
+    public abstract function getPayloadType();
 
     /**
      * Get the request method
@@ -523,6 +530,27 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
     }
 
     /**
+     * Add an object parser to the stack
+     *
+     * @param string $class
+     * @param string $itemKey
+     * @throws Exception
+     * @return self
+     */
+    public function parseWith($class, $itemKey = null)
+    {
+
+        if(!class_exists($class)) throw new Exception("Object class '{$class}' not found.");
+
+        $this->parseWith[] = [
+            'class' => $class,
+            'itemKey' => $itemKey
+        ];
+
+        return $this;
+    }
+
+    /**
      * Headers to include into the request
      *
      * @return array
@@ -536,6 +564,69 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
      *
      * @return mixed
      */
-    protected abstract function parseResponse(array $parsedResponse);
+    protected function parseResponse(array $parsedResponse)
+    {
+
+        if(empty($this->parseWith)) return $parsedResponse;
+
+        $results = [];
+
+        foreach($this->parseWith as $objectParser)
+        {
+            $key = $this->getKeyForResult($objectParser);
+            $results[$key] = $this->parseObject($objectParser, $parsedResponse);
+        }
+
+        if(count($results) === 1) return head($results);
+
+        return $results;
+    }
+
+    /**
+     * Get the results array key for the response
+     *
+     * @param array $parser
+     * @return string
+     */
+    protected function getKeyForResult(array $parser)
+    {
+
+        if(Arr::has($parser, 'itemKey') && !is_null($parser['itemKey'])) {
+
+            return $parser['itemKey'];
+
+        }
+
+        return Str::snake(class_basename($parser['class']));
+
+    }
+
+    /**
+     * Parse and object from the object parser
+     *
+     * @param array $parser
+     * @param array $data
+     *
+     * @return Object
+     */
+    protected function parseObject($parser, $data)
+    {
+
+        $objectClass = $parser['class'];
+
+        return $objectClass::create($data, $parser['itemKey']);
+
+    }
+
+    /**
+     * Get the current object parsers
+     *
+     * @return array
+     */
+    public function getObjectParsers()
+    {
+        return $this->parseWith;
+    }
+
 
 }

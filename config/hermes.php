@@ -7,8 +7,7 @@ return [
     'fallback_locale' => 'en',
 
     'sandbox' => [
-        'test' => 'lalla',
-        'base_url' => 'http://localhost:1234',
+        'base_url' => 'https://jsonplaceholder.typicode.com',
         'timeout' => 20,
 
 

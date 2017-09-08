@@ -2,9 +2,6 @@
 
 namespace Hermes\Core\Exceptions;
 
-
-use Illuminate\Support\MessageBag;
-
 class UrlParametersValidationError extends ValidationException
 {
 

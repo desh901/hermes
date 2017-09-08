@@ -2,8 +2,6 @@
 
 namespace Hermes\Core\Exceptions;
 
-use Throwable;
-
 class UnknownPayloadTypeException extends Exception
 {
 
@@ -22,7 +20,7 @@ class UnknownPayloadTypeException extends Exception
      * @param string $payloadType
      * @param Throwable|null $previous
      */
-    public function __construct($payloadType, Throwable $previous = null)
+    public function __construct($payloadType, $previous = null)
     {
         $this->payloadType = $payloadType;
 

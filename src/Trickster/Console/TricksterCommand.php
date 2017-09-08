@@ -50,7 +50,9 @@ class TricksterCommand extends Command
             'startupMessage' => "<comment><--- HERMES Trickster ---> v{$this->getApplication()->getVersion()}</comment>"
         ]);
 
-        // TODO: add action and objects caster
+        $config->getPresenter()->addCasters(
+            $this->getCasters()
+        );
 
         $shell = new Shell($config);
         $shell->addCommands($this->getCommands());
@@ -92,6 +94,34 @@ class TricksterCommand extends Command
 
         return $commands;
 
+    }
+
+    /**
+     * Get an array of Hermes casters
+     *
+     * @return array
+     */
+    protected function getCasters()
+    {
+
+        $casters = [
+            'Illuminate\Support\Collection' => '\Hermes\Trickster\TricksterCaster::castCollection'
+        ];
+
+        if(class_exists('Hermes\Ink\Object')) {
+            $casters['Hermes\Ink\Object'] = 'Hermes\Trickster\TricksterCaster::castObject';
+        }
+
+        if(class_exists('Hermes\Ink\Action')) {
+            $casters['Hermes\Ink\Action'] = 'Hermes\Trickster\TricksterCaster::castAction';
+        }
+
+
+        if(class_exists('Hermes\Core\Application')) {
+            $casters['Hermes\Core\Application'] = 'Hermes\Trickster\TricksterCaster::castApplication';
+        }
+
+        return $casters;
     }
 
     /**

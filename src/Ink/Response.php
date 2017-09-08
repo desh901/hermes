@@ -2,7 +2,6 @@
 
 namespace Hermes\Ink;
 
-use Hermes\Ink\Contracts\Request;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use Hermes\Ink\Contracts\Response as ResponseContract;
 

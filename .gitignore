@@ -1,3 +1,5 @@
+/cache/
 /vendor/
 .idea
 hermes
+db.json

@@ -90,7 +90,7 @@ trait HasQueryStringParameters
     {
         $query = trim(http_build_query($this->getQueryStringParameters()));
         $query = preg_replace('/%5B[00-9]+%5D/simU', '%5B%5D', $query);
-        return !empty($query) ? '?' : '';
+        return !empty($query) ? '?' . $query : '';
     }
 
 
