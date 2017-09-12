@@ -3,3 +3,8 @@
 .idea
 hermes
 db.json
+server.php
+test.*
+server
+lang
+cache
