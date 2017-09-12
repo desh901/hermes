@@ -3,6 +3,7 @@
 namespace Hermes\Ink\Traits;
 
 use Carbon\Carbon;
+use Hermes\Ink\Relations\Relation;
 use LogicException;
 use DateTimeInterface;
 use Illuminate\Support\Arr;
@@ -408,12 +409,10 @@ trait HasAttributes
 
         if (! $relation instanceof Relation) {
             throw new LogicException('Relationship method must return an object of type '
-                .'Illuminate\Database\Eloquent\Relations\Relation');
+                .'Hermes\Ink\Relations\Relation');
         }
 
-        return tap($relation->getResults(), function ($results) use ($method) {
-            $this->setRelation($method, $results);
-        });
+        return $relation->getRelationValue();
     }
 
     /**
@@ -544,7 +543,8 @@ trait HasAttributes
             return $this->fillJsonAttribute($key, $value);
         }
 
-        $this->attributes[$key] = $value;
+        //$this->attributes[$key] = $value;
+        Arr::set($this->attributes, $key, $value);
 
         return $this;
     }
@@ -773,6 +773,18 @@ trait HasAttributes
     public function getDates()
     {
         return $this->dates;
+    }
+
+    /**
+     * Return the date format used by the object
+     *
+     * @return string
+     */
+    public function getDateFormat()
+    {
+
+        return $this->dateFormat ?: 'Y-m-d H:i:s';
+
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Hermes\Ink\Relations;
 
 
 use Hermes\Ink\Contracts\Object as HermesObject;
+use Hermes\Ink\Contracts\Relationable;
 use Illuminate\Support\Traits\Macroable;
 
 abstract class Relation
@@ -31,9 +32,9 @@ abstract class Relation
      * Create a new relation instance.
      *
      * @param $related
-     * @param HermesObject $parent
+     * @param Relationable $parent
      */
-    public function __construct($related, HermesObject $parent)
+    public function __construct($related, Relationable $parent)
     {
 
         $this->related = $related;

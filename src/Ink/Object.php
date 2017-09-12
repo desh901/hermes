@@ -3,22 +3,22 @@
 namespace Hermes\Ink;
 
 use ArrayAccess;
-use Hermes\Core\Exceptions\ObjectParsingException;
 use JsonSerializable;
-use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Hermes\Ink\Relations\HasOne;
 use Hermes\Ink\Relations\Relation;
 use Illuminate\Support\Collection;
 use Hermes\Ink\Traits\HasAttributes;
 use Hermes\Ink\Traits\HasArrayAccess;
+use Hermes\Ink\Contracts\Relationable;
 use Hermes\Ink\Traits\HidesAttributes;
 use Hermes\Ink\Traits\HasRelationships;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
+use Hermes\Core\Exceptions\ObjectParsingException;
 use Hermes\Ink\Contracts\Object as ObjectContract;
 
-abstract class Object implements ObjectContract, Arrayable, ArrayAccess, Jsonable, JsonSerializable
+abstract class Object implements ObjectContract, Arrayable, ArrayAccess, Jsonable, JsonSerializable, Relationable
 {
 
     use HasAttributes,
@@ -136,20 +136,17 @@ abstract class Object implements ObjectContract, Arrayable, ArrayAccess, Jsonabl
              * it means that we have to load the relationship else we just set
              * the attribute value
              */
-            $relationMethod = Str::studly($attribute);
-            if(method_exists($this, $relationMethod)) {
+            if($this->isRelation($attribute)) {
+                $relationName = $this->getRelationNameFromAttribute($attribute);
+                $relation = $this->{$relationName}();
+                $this->setRelation(
+                    $relationName,
+                    $this->parseRelation($relation, $value)
+                );
 
-                $relation = $this->$relationMethod();
-                if($relation instanceof Relation) {
-                    $this->setRelation(
-                        $attribute,
-                        $this->parseRelation($relation, $value)
-                    );
-                }
-
+            }else {
+                $this->setAttribute($attribute, $value);
             }
-
-            $this->setAttribute($attribute, $value);
 
         }
 

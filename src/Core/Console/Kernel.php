@@ -2,10 +2,11 @@
 
 namespace Hermes\Core\Console;
 
-use Hermes\Commands\HelloHermesCommand;
-use Hermes\Trickster\Console\TricksterCommand;
+use Hermes\Commands\ServeCommand;
 use Illuminate\Support\Facades\Cache;
+use Hermes\Commands\HelloHermesCommand;
 use Illuminate\Console\Scheduling\Schedule;
+use Hermes\Trickster\Console\TricksterCommand;
 use Hermes\Core\Console\Application as Hermes;
 use Hermes\Core\Contracts\Console\Kernel as KernelContract;
 
@@ -40,7 +41,8 @@ class Kernel implements KernelContract
      */
     protected $commands = [
         HelloHermesCommand::class,
-        TricksterCommand::class
+        TricksterCommand::class,
+        ServeCommand::class
     ];
 
     /**

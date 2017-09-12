@@ -17,5 +17,7 @@ class Exception extends BaseException
     const CONNECTION_EXCEPTION = 7;
     const JSON_ENCODING_EXCEPTION = 8;
     const OBJECT_PARSING_EXCEPTION = 9;
+    const CALLBACK_VERIFICATION_FAILED = 10;
+    const UNEXPECTED_CALLBACK_EXCEPTION = 11;
 
 }

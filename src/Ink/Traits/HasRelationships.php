@@ -2,6 +2,7 @@
 
 namespace Hermes\Ink\Traits;
 
+use Hermes\Ink\Relations\Relation;
 use Illuminate\Support\Str;
 use Hermes\Ink\Relations\HasOne;
 use Hermes\Ink\Relations\HasMany;
@@ -112,6 +113,42 @@ trait HasRelationships
         $this->relations = $relations;
 
         return $this;
+    }
+
+    /**
+     * Checks if the specified attribute is a relation
+     *
+     * @param string $attribute
+     * @return bool
+     */
+    public function isRelation($attribute)
+    {
+
+        $relationMethod = $this->getRelationNameFromAttribute($attribute);
+        if(method_exists($this, $relationMethod)) {
+            $relation = $this->$relationMethod();
+            if ($relation instanceof Relation) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    /**
+     * Get the relation method name from attribute name
+     *
+     * @param string $attribute
+     *
+     * @return string
+     */
+    public function getRelationNameFromAttribute($attribute)
+    {
+
+        $relationKey = last(explode('.', $attribute));
+        return Str::camel($relationKey);
+
     }
 
 }

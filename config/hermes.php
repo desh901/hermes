@@ -7,7 +7,7 @@ return [
     'fallback_locale' => 'en',
 
     'sandbox' => [
-        'base_url' => 'https://jsonplaceholder.typicode.com',
+        'base_url' => 'http://www.mocky.io/v2',
         'timeout' => 20,
 
 
@@ -15,6 +15,10 @@ return [
             'type' => 'basic',
             'username' => 'lallo',
             'password' => 'lalletto'
+        ],
+
+        'callbacks' => [
+            'verify' => true
         ]
     ],
 

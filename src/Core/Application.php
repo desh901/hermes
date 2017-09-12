@@ -226,10 +226,6 @@ class Application extends Container implements ApplicationContract
             return new ActionRouter($app);
         });
 
-        $this->booted(function($app) {
-            $app['router']->getRoutes()->refreshNameLookups();
-        });
-
     }
 
     /**
@@ -520,9 +516,5 @@ class Application extends Container implements ApplicationContract
             $this->call($terminating);
         }
     }
-
-
-
-
 
 }

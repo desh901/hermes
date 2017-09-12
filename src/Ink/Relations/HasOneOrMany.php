@@ -2,7 +2,7 @@
 
 namespace Hermes\Ink\Relations;
 
-use Hermes\Ink\Contracts\Object as HermesObject;
+use Hermes\Ink\Contracts\Relationable;
 
 class HasOneOrMany extends Relation
 {
@@ -18,11 +18,12 @@ class HasOneOrMany extends Relation
      * HasOneOrMany constructor.
      *
      * @param string $related
-     * @param HermesObject $parent
+     * @param Relationable $parent
      * @param $parentKey
      */
-    public function __construct($related, HermesObject $parent, $parentKey)
+    public function __construct($related, Relationable $parent, $parentKey)
     {
+        $this->parentKey = $parentKey;
         parent::__construct($related, $parent);
     }
 
@@ -43,7 +44,7 @@ class HasOneOrMany extends Relation
      */
     public function getRelationValue()
     {
-        return $this->getParent()->getAttribute($this->getParentKey());
+        return $this->getParent()->{$this->getParentKey()};
     }
 
 }

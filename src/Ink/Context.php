@@ -53,7 +53,7 @@ class Context implements ContextContract
     protected $credentials;
 
 
-    public function __construct($config, Repository $cache, Credentials $credentials, $verifyCallbacks = false)
+    public function __construct($config, Repository $cache, Credentials $credentials)
     {
 
         $this->mode = $config['mode'];
@@ -64,7 +64,7 @@ class Context implements ContextContract
         $this->baseUrl = $settings['base_url'];
         $this->cache = $cache;
         $this->credentials = $credentials;
-        $this->verifyCallbacks = $verifyCallbacks;
+        $this->verifyCallbacks = $settings['callbacks']['verify'];
 
         if(!Str::endsWith($this->baseUrl, '/')) $this->baseUrl .= '/';
 
