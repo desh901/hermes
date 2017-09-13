@@ -3,12 +3,13 @@
 namespace Hermes\Core\Console;
 
 use Hermes\Commands\ServeCommand;
+use Hermes\Commands\ConfigCacheCommand;
+use Hermes\Commands\ConfigClearCommand;
 use Hermes\Commands\HelloHermesCommand;
 use Hermes\Core\Bootstrap\BootProviders;
 use Illuminate\Console\Scheduling\Schedule;
 use Hermes\Core\Bootstrap\RegisterProviders;
 use Hermes\Core\Bootstrap\LoadConfiguration;
-use Hermes\Trickster\Console\TricksterCommand;
 use Hermes\Core\Console\Application as Hermes;
 use Hermes\Core\Contracts\Console\Kernel as KernelContract;
 
@@ -42,9 +43,10 @@ class Kernel implements KernelContract
      * @var array
      */
     protected $commands = [
+        ConfigClearCommand::class,
+        ConfigCacheCommand::class,
         HelloHermesCommand::class,
-        TricksterCommand::class,
-        ServeCommand::class
+        ServeCommand::class,
     ];
 
     /**
