@@ -2,9 +2,14 @@
 
 return [
 
-    'mode' => 'sandbox',
+    'log' => 'single',
+    'log_level' => 'debug',
+    'log_max_files' => 5,
+
     'locale' => 'en',
     'fallback_locale' => 'en',
+
+    'mode' => 'sandbox',
 
     'sandbox' => [
         'base_url' => 'http://www.mocky.io/v2',
@@ -31,6 +36,19 @@ return [
             'jwt',
             'client'
         ]
+
+    ],
+
+    'providers' => [
+        \Illuminate\Filesystem\FilesystemServiceProvider::class,
+        \Hermes\Providers\TranslationServiceProvider::class,
+        \Illuminate\Validation\ValidationServiceProvider::class,
+        \Illuminate\Cache\CacheServiceProvider::class,
+        \Hermes\Providers\ContextServiceProvider::class,
+        \Hermes\Providers\CredentialsServiceProvider::class,
+        \Hermes\Providers\ActionRouterServiceProvider::class,
+        \Hermes\Providers\HttpBodyParserServiceProvider::class,
+        \Hermes\Trickster\TricksterServiceProvider::class
 
     ]
 

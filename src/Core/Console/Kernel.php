@@ -3,9 +3,11 @@
 namespace Hermes\Core\Console;
 
 use Hermes\Commands\ServeCommand;
-use Illuminate\Support\Facades\Cache;
 use Hermes\Commands\HelloHermesCommand;
+use Hermes\Core\Bootstrap\BootProviders;
 use Illuminate\Console\Scheduling\Schedule;
+use Hermes\Core\Bootstrap\RegisterProviders;
+use Hermes\Core\Bootstrap\LoadConfiguration;
 use Hermes\Trickster\Console\TricksterCommand;
 use Hermes\Core\Console\Application as Hermes;
 use Hermes\Core\Contracts\Console\Kernel as KernelContract;
@@ -57,7 +59,11 @@ class Kernel implements KernelContract
      *
      * @var array
      */
-    protected $bootstrappers = [];
+    protected $bootstrappers = [
+        LoadConfiguration::class,
+        RegisterProviders::class,
+        BootProviders::class
+    ];
 
     /**
      * Create a new console kernel instance.
@@ -71,24 +77,6 @@ class Kernel implements KernelContract
         }
 
         $this->app = $app;
-
-        $this->app->booted(function () {
-            $this->defineConsoleSchedule();
-        });
-    }
-
-    /**
-     * Define the application's command schedule.
-     *
-     * @return void
-     */
-    protected function defineConsoleSchedule()
-    {
-        $this->app->instance(
-            Schedule::class, $schedule = new Schedule($this->app[Cache::class])
-        );
-
-        $this->schedule($schedule);
     }
 
     /**
@@ -97,6 +85,7 @@ class Kernel implements KernelContract
      * @param  \Symfony\Component\Console\Input\InputInterface  $input
      * @param  \Symfony\Component\Console\Output\OutputInterface  $output
      * @return int
+     * @throws \Exception|\Throwable
      */
     public function handle($input, $output = null)
     {
@@ -238,7 +227,7 @@ class Kernel implements KernelContract
         // If we are calling an arbitrary command from within the application, we'll load
         // all of the available deferred providers which will make all of the commands
         // available to an application. Otherwise the command will not be available.
-        //$this->app->loadDeferredProviders();
+        $this->app->loadDeferredProviders();
     }
 
     /**
