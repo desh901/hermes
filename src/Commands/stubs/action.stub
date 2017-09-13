@@ -1,0 +1,12 @@
+<?php
+
+namespace DummyNamespace;
+
+use Hermes\Ink\Action;
+
+class DummyClass extends Action
+{
+
+    //
+
+}

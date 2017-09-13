@@ -1,0 +1,12 @@
+<?php
+
+namespace DummyNamespace;
+
+use Hermes\Ink\Object;
+
+class DummyClass extends Object
+{
+
+    //
+
+}
