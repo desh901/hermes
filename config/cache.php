@@ -11,6 +11,8 @@ return [
             'path' => __DIR__.'/../cache'
         ]
 
-    ]
+    ],
+
+    'prefix' => 'hermes'
 
 ];
