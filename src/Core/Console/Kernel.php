@@ -2,10 +2,6 @@
 
 namespace Hermes\Core\Console;
 
-use Hermes\Commands\ServeCommand;
-use Hermes\Commands\ConfigCacheCommand;
-use Hermes\Commands\ConfigClearCommand;
-use Hermes\Commands\HelloHermesCommand;
 use Hermes\Core\Bootstrap\BootProviders;
 use Illuminate\Console\Scheduling\Schedule;
 use Hermes\Core\Bootstrap\RegisterProviders;
@@ -38,16 +34,11 @@ class Kernel implements KernelContract
     protected $hermes;
 
     /**
-     * The Artisan commands provided by the application.
+     * The Hermes commands provided by the application.
      *
      * @var array
      */
-    protected $commands = [
-        ConfigClearCommand::class,
-        ConfigCacheCommand::class,
-        HelloHermesCommand::class,
-        ServeCommand::class,
-    ];
+    protected $commands = [];
 
     /**
      * Indicates if the Closure commands have been loaded.
@@ -152,8 +143,8 @@ class Kernel implements KernelContract
     {
         $command = new ClosureCommand($signature, $callback);
 
-        Hermes::starting(function ($artisan) use ($command) {
-            $artisan->add($command);
+        Hermes::starting(function ($hermes) use ($command) {
+            $hermes->add($command);
         });
 
         return $command;
@@ -171,7 +162,7 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Run an Artisan console command by name.
+     * Run an Hermes console command by name.
      *
      * @param  string  $command
      * @param  array  $parameters
@@ -216,7 +207,7 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Bootstrap the application for artisan commands.
+     * Bootstrap the application for hermes commands.
      *
      * @return void
      */
@@ -248,7 +239,7 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Set the Artisan application instance.
+     * Set the Hermes application instance.
      *
      * @param  \Hermes\Core\Console\Application  $hermes
      * @return void

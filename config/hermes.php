@@ -48,7 +48,7 @@ return [
         \Hermes\Providers\CredentialsServiceProvider::class,
         \Hermes\Providers\ActionRouterServiceProvider::class,
         \Hermes\Providers\HttpBodyParserServiceProvider::class,
-        \Hermes\Trickster\TricksterServiceProvider::class
+        \Hermes\Providers\ConsoleSupportServiceProvider::class
 
     ]
 
