@@ -579,7 +579,7 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
 
         if(count($results) === 1) return head($results);
 
-        return $results;
+        return (object) $results;
     }
 
     /**
@@ -626,6 +626,23 @@ abstract class Action implements ActionContract, Parametrized, UrlParametrized, 
     public function getObjectParsers()
     {
         return $this->parseWith;
+    }
+
+    /**
+     * Prepare the action for the serialization
+     */
+    public function prepareForSerialization()
+    {
+
+        unset($this->validator, $this->context, $this->parser);
+
+    }
+
+    public function __wakeup()
+    {
+        $this->context = app(Context::class);
+        $this->validator = app(Validation::class);
+        $this->parser = app(Parsing::class);
     }
 
 

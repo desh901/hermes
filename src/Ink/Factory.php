@@ -5,6 +5,7 @@ namespace Hermes\Ink;
 use Hermes\Core\Routing\ActionRouter;
 use Hermes\Ink\Contracts\Factory as FactoryContract;
 use Hermes\Core\Exceptions\EntityResolutionException;
+use Illuminate\Support\Str;
 
 class Factory implements FactoryContract
 {
@@ -67,13 +68,32 @@ class Factory implements FactoryContract
     public function make($entity)
     {
 
-        $this->router->getActions()->refreshNameLookups();
-
         if(!$this->router->getActions()->hasNamedAction($entity)) {
             throw new EntityResolutionException($entity);
         }
 
         return $this->router->getActions()->getByName($entity);
+
+    }
+
+    /**
+     * Dynamically instantiate entities from factory
+     *
+     * @param string $method
+     * @param array $parameters
+     *
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+
+        $snakedMethod = Str::snake($method, '.');
+        if($this->router->getActions()->hasNamedAction($snakedMethod))
+        {
+            return $this->make($snakedMethod);
+        }
+
+        throw new \BadMethodCallException("Method [$method] does not exist in class " . self::class);
 
     }
 

@@ -3,6 +3,8 @@
 namespace Hermes\Providers;
 
 
+use Hermes\Commands\ActionCacheCommand;
+use Hermes\Commands\ActionClearCommand;
 use Hermes\Core\ServiceProvider;
 use Hermes\Commands\ServeCommand;
 use Hermes\Commands\CacheClearCommand;
@@ -23,6 +25,8 @@ class ConsoleSupportServiceProvider extends ServiceProvider
         ClearCompiledCommand::class,
         ConfigClearCommand::class,
         ConfigCacheCommand::class,
+        ActionCacheCommand::class,
+        ActionClearCommand::class,
         CacheClearCommand::class,
         TricksterCommand::class,
         ServeCommand::class,

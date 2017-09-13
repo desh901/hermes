@@ -46,9 +46,9 @@ return [
         \Illuminate\Cache\CacheServiceProvider::class,
         \Hermes\Providers\ContextServiceProvider::class,
         \Hermes\Providers\CredentialsServiceProvider::class,
-        \Hermes\Providers\ActionRouterServiceProvider::class,
         \Hermes\Providers\HttpBodyParserServiceProvider::class,
-        \Hermes\Providers\ConsoleSupportServiceProvider::class
+        \Hermes\Providers\ConsoleSupportServiceProvider::class,
+        \Hermes\Test\ActionServiceProvider::class
 
     ]
 

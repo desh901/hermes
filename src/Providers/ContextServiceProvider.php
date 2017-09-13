@@ -9,8 +9,6 @@ use Illuminate\Support\ServiceProvider;
 class ContextServiceProvider extends ServiceProvider
 {
 
-    protected $defer = true;
-
     /**
      * Registers the provider
      */

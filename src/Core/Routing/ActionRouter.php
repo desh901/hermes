@@ -7,8 +7,9 @@ use Hermes\Ink\Action;
 use Illuminate\Support\Str;
 use Illuminate\Container\Container;
 use Illuminate\Support\Traits\Macroable;
+use Hermes\Core\Contracts\Routing\Router;
 
-class ActionRouter
+class ActionRouter implements Router
 {
     use Macroable {
         __call as macroCall;

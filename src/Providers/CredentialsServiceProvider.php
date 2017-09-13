@@ -22,7 +22,7 @@ class CredentialsServiceProvider extends ServiceProvider
             $mode = $app['config']['hermes.mode'];
             $type = $app['config']['hermes'][$mode]['credentials']['type'];
 
-            return $app['credentials']->driver($type);
+            return $app['hermes.credentials']->driver($type);
         });
     }
 

@@ -1,9 +1,9 @@
 <?php
 
-if(!function_exists('hermes'))
+if(!function_exists('app'))
 {
 
-    function hermes($abstract = null, array $parameters = [])
+    function app($abstract = null, array $parameters = [])
     {
 
         if(defined('LARAVEL_START')){

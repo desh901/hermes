@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: desh
- * Date: 04/09/17
- * Time: 18.20
- */
 
 namespace Hermes\Core\Contracts\Console;
 

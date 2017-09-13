@@ -316,9 +316,7 @@ class Application extends Container implements ApplicationContract
     protected function fireAppCallbacks(array $callbacks)
     {
         foreach ($callbacks as $callback) {
-            dump($callback);
             call_user_func($callback, $this);
-            dump('CALL_OK');
         }
     }
 
@@ -783,6 +781,30 @@ class Application extends Container implements ApplicationContract
     public function isDownForMaintenance()
     {
         return false;
+    }
+
+    /**
+     * Determine if the application actions are cached.
+     *
+     * @return bool
+     */
+    public function actionsAreCached()
+    {
+
+        return $this['files']->exists($this->getCachedActionsPath());
+
+    }
+
+    /**
+     * Get the path of the actions cache file
+     *
+     * @return string
+     */
+    public function getCachedActionsPath()
+    {
+
+        return $this->bootstrapPath() .  '/cache/actions.php';
+
     }
 
 }
