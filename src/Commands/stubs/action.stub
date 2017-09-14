@@ -7,6 +7,24 @@ use Hermes\Ink\Action;
 class DummyClass extends Action
 {
 
-    //
+    /**
+    * Returns the request payload type
+    *
+    * @return string
+    */
+    public function getPayloadType()
+    {
+        return 'json';
+    }
+
+    /**
+    * Returns the array of additional headers to add to the request
+    *
+    * @return array
+    */
+    protected function getHeaders()
+    {
+        return [];
+    }
 
 }

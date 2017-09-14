@@ -7,6 +7,7 @@ use Hermes\Commands\ActionCacheCommand;
 use Hermes\Commands\ActionClearCommand;
 use Hermes\Commands\ActionMakeCommand;
 use Hermes\Commands\ObjectMakeCommand;
+use Hermes\Commands\SdkMakeCommand;
 use Hermes\Core\ServiceProvider;
 use Hermes\Commands\ServeCommand;
 use Hermes\Commands\CacheClearCommand;
@@ -33,6 +34,7 @@ class ConsoleSupportServiceProvider extends ServiceProvider
         ActionMakeCommand::class,
         ObjectMakeCommand::class,
         TricksterCommand::class,
+        SdkMakeCommand::class,
         ServeCommand::class,
     ];
 

@@ -7,6 +7,13 @@ use Hermes\Ink\Object;
 class DummyClass extends Object
 {
 
-    //
+    /**
+    * The object expected attributes
+    *
+    * @var array
+    */
+    protected $structure = [
+
+    ];
 
 }
